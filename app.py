@@ -1,7 +1,15 @@
 import streamlit as st
 from openai import OpenAI
 import urllib.request # 用于下载图片的新工具
+import streamlit as st
+from openai import OpenAI
+import urllib.request
 
+# 👇 新加这行代码，设置网页标题和你的专属 App 图标！
+st.set_page_config(page_title="情绪食谱", page_icon="🍲") 
+
+st.title("🍲 情绪食谱生成器 Mood-Recipe")
+# ... 下面保留你原来的所有代码 ...
 st.title("🍲 情绪食谱生成器 Mood-Recipe")
 st.write("欢迎来到你的专属治愈厨房！(🎬 影音 & 视觉全能版)")
 
