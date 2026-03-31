@@ -1,6 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 import urllib.request
+import urllib.parse
 from datetime import datetime, timedelta
 import base64
 import time
@@ -248,12 +249,15 @@ with tab_kitchen:
                     )
                     recipe_text = response.choices[0].message.content
                     
-                    image_prompt = f"一道精致的治愈系美食，米其林风格，时间是{meal_time}，天气{weather}。主要食材包含：{final_ingredients_str}。目标：{diet_goal}。氛围：{mood}的解解毒，顶级美食摄影，高清，诱人。"
-                    image_response = client.images.generate(
-                        model="cogview-3-plus", 
-                        prompt=image_prompt
-                    )
-                    image_url = image_response.data[0].url
+                    # --- 🌟 零成本黑科技：调用免费的 Pollinations.ai 画图 ---
+                    # 为了让免费模型画得更好，我们把提示词翻译成英文格式
+                    image_prompt = f"A high-end Michelin style food photography of a healing dish made of {final_ingredients_str}. Mood: {mood} cure. Weather: {weather}. Lighting: {meal_time}. Cinematic lighting, ultra detailed, 8k resolution, food magazine cover."
+                    
+                    # 将文字转换成网址能看懂的格式
+                    safe_prompt = urllib.parse.quote(image_prompt)
+                    
+                    # 免费魔法：直接通过拼接网址就能生成图片！加上 nologo=true 去掉水印
+                    image_url = f"https://image.pollinations.ai/prompt/{safe_prompt}?width=800&height=800&nologo=true"
                     
                     progress_bar = st.progress(0)
                     for percent_complete in range(100):
