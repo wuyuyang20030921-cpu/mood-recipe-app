@@ -20,14 +20,13 @@ mood = st.selectbox("你现在的心情是？", ["🤯 焦虑", "😭 难过", "
 ingredients = st.text_input("冰箱里有什么食材？ (例如：西红柿, 鸡蛋, 面条, 猪肉)")
 
 # 2. 点击按钮触发
-if st.button("✨ 生成我的治愈食谱"):
-    elif not ingredients:
+if st.button("✨ 顺应天时，生成我的治愈食谱", use_container_width=True):
+    if not ingredients:  # <--- 改成 if 就对啦！
         st.warning("请先告诉我你有哪些食材！")
     else:
-        st.info("👨‍🍳 主厨正在为你构思料理，并绘制诱人的美食照片，请稍候...")
-        
+        st.success("👨‍🍳 主厨正在感受窗外的天气，为你构思专属料理...")
+
         try:
-            # 连接到智谱的大脑
             client = OpenAI(
                 api_key=api_key, 
                 base_url="https://open.bigmodel.cn/api/paas/v4/"
