@@ -14,14 +14,13 @@ st.title("🍲 情绪食谱生成器 Mood-Recipe")
 st.write("欢迎来到你的专属治愈厨房！(🎬 影音 & 视觉全能版)")
 
 # 1. 密码框
-api_key = st.text_input("🔑 请输入你的 智谱 API Key 唤醒主厨：", type="password")
+# 从 Streamlit 的隐形保险箱里读取钥匙
+api_key = st.secrets["ZHIPU_API_KEY"]
 mood = st.selectbox("你现在的心情是？", ["🤯 焦虑", "😭 难过", "🥱 疲惫", "🥳 开心", "😡 愤怒"])
 ingredients = st.text_input("冰箱里有什么食材？ (例如：西红柿, 鸡蛋, 面条, 猪肉)")
 
 # 2. 点击按钮触发
 if st.button("✨ 生成我的治愈食谱"):
-    if not api_key:
-        st.warning("请先输入上面的 API Key 哦！")
     elif not ingredients:
         st.warning("请先告诉我你有哪些食材！")
     else:
