@@ -1,31 +1,27 @@
-
 import streamlit as st
 from openai import OpenAI
 import urllib.request
 from datetime import datetime, timedelta
 import base64
 import time
-import re # 用于提取食材的工具
+import re
 
 # ==========================================
 # 🌟 第一部分：终极视觉魔法 & CSS 大改造
 # ==========================================
 st.set_page_config(page_title="情绪食谱 V3.0 至尊版", page_icon="🍲", layout="wide") 
 
-# 初始化“短期记忆库” (只要网页没关，生成的食谱都会存在这里)
+# 初始化“短期记忆库”
 if "recipe_history" not in st.session_state:
     st.session_state.recipe_history = []
 if "current_recipe" not in st.session_state:
-    st.session_state.current_recipe = None # 存放当前正在展示的食谱
+    st.session_state.current_recipe = None 
 if "current_image" not in st.session_state:
-    st.session_state.current_image = None # 存放当前生成的图片
+    st.session_state.current_image = None 
 
 st.markdown(
     """
     <style>
-    /* ==================================
-       核心魔法 1：高级动态呼吸背景 动画
-       ================================== */
     @keyframes gradientBG {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -40,16 +36,12 @@ st.markdown(
         color: #4a4a4a;
     }
 
-    /* ==================================
-       核心魔法 2：玻璃质感卡片 效果 (Glassmorphism)
-       ================================== */
     div[data-testid="stSidebar"] {
         background-color: rgba(255, 232, 214, 0.2) !important;
         backdrop-filter: blur(20px) !important;
         padding-top: 1rem !important;
     }
 
-    /* 输入框、容器的高级玻璃效果 */
     .stTextInput input, .stSelectbox select, .stTextArea textarea, .stCameraInput button, div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: rgba(255, 255, 255, 0.5) !important;
         backdrop-filter: blur(10px) !important;
@@ -59,9 +51,6 @@ st.markdown(
         padding: 10px !important;
     }
 
-    /* ==================================
-       核心魔法 3：灵动按钮与 Tab 美化
-       ================================== */
     div.stButton > button {
         background: linear-gradient(135deg, #ffb085 0%, #ff8c69 100%) !important;
         color: white !important;
@@ -76,7 +65,6 @@ st.markdown(
         box-shadow: 0 6px 15px rgba(255, 140, 105, 0.6) !important;
     }
 
-    /* 美化 Tab 标签页 */
     .stTabs [data-baseweb="tab-list"] { gap: 20px; }
     .stTabs [data-baseweb="tab"] {
         height: 50px;
@@ -92,7 +80,6 @@ st.markdown(
         font-weight: bold;
     }
 
-    /* 全局组件微调 */
     .stTextInput input:focus, .stSelectbox select:focus {
         border-color: #ffb085 !important;
         box-shadow: 0 0 0 1px #ffb085 !important;
@@ -100,7 +87,6 @@ st.markdown(
     .block-container { padding-top: 2rem !important; }
     div.stMarkdown h1, div.stMarkdown p { text-align: center; }
     
-    /* 让标题加上一圈柔和的发光效果，提升视觉冲击 */
     div.stMarkdown h1 {
         color: #ff8c69;
         text-shadow: 0 4px 8px rgba(255, 140, 105, 0.2);
@@ -114,7 +100,7 @@ st.title("🍲 情绪食谱生成器 V3.0 至尊版")
 st.write("欢迎来到你的专属治愈厨房！(🌟 带短期记忆的商业满血版)")
 
 # ==========================================
-# 🌟 第二部分：侧边栏管家控制台 (更贴心的输入)
+# 🌟 第二部分：侧边栏管家控制台 
 # ==========================================
 with st.sidebar:
     st.markdown("## 👨‍🍳 主厨控制台")
@@ -130,7 +116,6 @@ with st.sidebar:
         "⚖️ 营养均衡 (不限)", "🥗 疯狂减脂 (低卡低脂)", "💪 增肌充碳 (高蛋白)", "🍵 肠胃友好 (好消化)", "😈 极致放纵 (好吃就行)"
     ])
     
-    # --- 新增功能：主厨风格 ---
     chef_style = st.selectbox("4. 想要哪种风格的主厨？", [
         "👵 Gentle Grandma (温柔、外婆的味道)",
         "👨‍🍳 Michelin Star (专业、追求完美摆盘)",
@@ -173,23 +158,19 @@ with st.sidebar:
     final_ingredients_str = '，'.join(set(final_ingredients_list))
 
     st.markdown("---")
-    # 终极生成按钮 (撐满侧边栏)
     submit_button = st.button("✨ 顺应天时，烹饪我的治愈食谱 ✨", use_container_width=True)
 
 
 # ==========================================
-# 🌟 第三部分：主界面模块化 (Tab 标签页 & 状态同步)
+# 🌟 第三部分：主界面模块化
 # ==========================================
-# 顶部的模块导航
 tab_kitchen, tab_history = st.tabs(["👨‍🍳 创作厨房 (点餐区)", "📖 我的专属菜谱库 (历史)"])
 
 with tab_kitchen:
-    # 如果用户提交了点餐请求
     if submit_button:
         if not final_ingredients_str:
             st.warning("👈 请先在左侧控制台告诉主厨食材哦！")
         else:
-            # 根据天气全屏下雪特效
             if weather in ["🌧️ 阴雨绵绵", "❄️ 寒冷刺骨", "🌬️狂风大作"]: st.snow()
             else: st.balloons()
             
@@ -204,9 +185,7 @@ with tab_kitchen:
                     elif 17 <= current_hour < 21: meal_time = "🌆 晚餐"
                     else: meal_time = "🌙 深夜食堂"
 
-                    # 提示词彻底精进：加入主厨风格、营养师视角、饮品搭配
-                    prompt = f"""
-                 # 提示词彻底精进：加入极致排版的料理魔法模板
+                    # 🌟 这里是全新升级的极致排版 Prompt 🌟
                     prompt = f"""
                     你是一个懂得心理学和营养学的米其林主厨。
                     【当前情境】- 心情：【{mood}】，天气：【{weather}】，时间：【{meal_time}】，食材：【{final_ingredients_str}】
@@ -253,7 +232,6 @@ with tab_kitchen:
                     - **🎬 治愈放映室**：*(1部电影)*
                     - **🍵 推荐配饮**：*(1款，并说明理由)*
                     """
-                    """
                     
                     response = client.chat.completions.create(
                         model="glm-4-flash",
@@ -269,28 +247,17 @@ with tab_kitchen:
                     )
                     image_url = image_response.data[0].url
                     
-                    # 模拟进度条，沉浸式体验
                     progress_bar = st.progress(0)
                     for percent_complete in range(100):
-                        time.sleep(0.01) # 模拟处理时间
+                        time.sleep(0.01) 
                         progress_bar.progress(percent_complete + 1)
                     
-                    # 沉浸式成功动效：全屏五彩庆祝纸屑！
-                    st.components.v1.html(
-                        """
-                        <script>
-                            window.parent.postMessage({type: 'streamlit:report_progress', progress: 100}, '*')
-                        </script>
-                        """, height=0
-                    )
+                    st.components.v1.html("<script>window.parent.postMessage({type: 'streamlit:report_progress', progress: 100}, '*')</script>", height=0)
                     st.success("👨‍🍳 厨艺施展完毕！全能满血版大餐已上桌 ✨")
                     
-                    # --- 记忆同步魔法 ---
-                    # 1. 存入当前展示的状态
                     st.session_state.current_recipe = recipe_text
                     st.session_state.current_image = image_url
                     
-                    # 2. 存入菜谱记忆库 (去重，存一份干净的历史)
                     st.session_state.recipe_history.insert(0, {
                         "time": current_time.strftime('%Y-%m-%d %H:%M'),
                         "mood": mood,
@@ -302,31 +269,24 @@ with tab_kitchen:
                 except Exception as e:
                     st.error(f"哎呀，厨房出了点小状况：{e}")
     
-    # --- 🌟 创作厨房 真正的响应式展示魔法 ---
-    # 如果用户没有提交，但记忆库里有当前的食谱，就要在这里同步展示
     if st.session_state.current_recipe and st.session_state.current_image:
         res_col_left, res_col_right = st.columns([6, 4])
         
         with res_col_left:
-            # 给文字区域套上玻璃卡片效果容器
             with st.container(border=True):
                 st.markdown(st.session_state.current_recipe)
                 st.markdown("---")
                 
-                # --- 新增：交互式采购 Checklist 采购清单 ---
-                # 尝试通过简单的正则提取食材列表（假设 AI 按模板列出了短列表）
                 ingredients_section = re.search(r"#### 🛒 食材确认\n([\s\S]*?)\n---", st.session_state.current_recipe)
                 if ingredients_section:
                     st.markdown("#### 🛒 交互式采购清单")
                     st.write("在手机上点击选择，已经买好的可以划掉哦：")
-                    # 提取食材行，清理废话
                     raw_items = ingredients_section.group(1).split('\n')
                     for item in raw_items:
                         item = item.strip().lstrip('- ').lstrip('* ').strip()
                         if item:
                             st.checkbox(f"**{item}**", key=f"buy_{item}")
 
-                # --- 新增功能：导出 Markdown 文本食谱按钮 ---
                 st.download_button(
                     label="💾 点击保存 Markdown 文本菜谱至电脑/手机备忘录",
                     data=st.session_state.current_recipe,
@@ -340,36 +300,39 @@ with tab_kitchen:
             image_bytes = urllib.request.urlopen(st.session_state.current_image).read()
             st.download_button(label="💾 点击保存美食概念图到相册", data=image_bytes, file_name="recipe.png", mime="image/png", use_container_width=True)
             
-    # 如果没有生成过食谱，显示开场语
     elif not submit_button:
         st.info("👈 请在左侧控制台写下需求，主厨将把“治愈料理”在这片玻璃卡片上完美呈现！")
 
 
 # ==========================================
-# 🌟 第四部分：我的专属菜谱库 (读取记忆库 & 功能完善)
+# 🌟 第四部分：我的专属菜谱库 (带向下兼容保护)
 # ==========================================
 with tab_history:
     st.markdown("### 📖 这里记录着你今天的所有治愈时刻")
     
-    # 功能完善：一键清空记忆库
     if st.session_state.recipe_history:
         col_clear1, col_clear2, col_clear3 = st.columns([2, 1, 2])
         with col_clear2:
             if st.button("🗑️ 清空记忆库", use_container_width=True):
                 st.session_state.recipe_history = []
-                st.session_state.current_recipe = None # 也要清除当前主屏的展示
+                st.session_state.current_recipe = None 
                 st.session_state.current_image = None
-                st.rerun() # 立即刷新页面
+                st.rerun() 
 
     if not st.session_state.recipe_history:
         st.write("目前厨房还没有开火记录哦，快去【创作厨房】做第一道菜吧！")
     else:
-        # 遍历历史记录并展示
         for idx, item in enumerate(st.session_state.recipe_history):
-            # 使用 expander (手风琴折叠面板) 整理历史记录
-            with st.expander(f"🕰️ {item['time']} | 心情：{item['mood']} | 风格：{item['style'].split(' ')[1]}", expanded=(idx==0)):
+            # 🛡️ 核心修复：使用 .get() 防止老数据崩溃
+            safe_style = item.get('style', '👨‍🍳 默认')
+            style_name = safe_style.split(' ')[1] if ' ' in safe_style else safe_style
+            safe_time = item.get('time', '未知时间')
+            safe_mood = item.get('mood', '未知心情')
+            
+            with st.expander(f"🕰️ {safe_time} | 心情：{safe_mood} | 风格：{style_name}", expanded=(idx==0)):
                 hist_col1, hist_col2 = st.columns([6, 4])
                 with hist_col1:
-                    st.markdown(item['text'])
+                    st.markdown(item.get('text', '获取菜谱内容失败'))
                 with hist_col2:
-                    st.image(item['image'], use_column_width=True)
+                    if item.get('image'):
+                        st.image(item['image'], use_column_width=True)
