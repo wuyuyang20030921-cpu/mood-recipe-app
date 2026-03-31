@@ -1,0 +1,11 @@
+[theme]
+# 网页主色调 (例如：按钮和高亮)
+primaryColor = "#ffb085"
+# 网页背景色
+backgroundColor = "#fff9f3"
+# 侧边栏背景色
+secondaryBackgroundColor = "#ffe8d6"
+# 网页文字颜色
+textColor = "#4a4a4a"
+# 字体
+font = "sans serif"
