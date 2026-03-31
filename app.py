@@ -5,7 +5,49 @@ from datetime import datetime, timedelta
 
 # --- 网页基础设置 ---
 st.set_page_config(page_title="情绪食谱", page_icon="🍲", layout="wide") 
+# --- 🌟 第四层面：注入 CSS 魔法，精修界面细节 ---
+st.markdown(
+    """
+    <style>
+    /* 1. 美化主按钮：圆角、渐变色、悬浮动态阴影 */
+    div.stButton > button {
+        background: linear-gradient(135deg, #ffb085 0%, #ff8c69 100%) !important;
+        color: white !important;
+        border-radius: 20px !important;
+        font-weight: bold !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(255, 140, 105, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    /* 鼠标悬停时的按钮浮起效果 */
+    div.stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 15px rgba(255, 140, 105, 0.6) !important;
+    }
 
+    /* 2. 让文字卡片更有呼吸感 (针对刚刚加的 st.container) */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 15px !important;
+        border: 1px solid #f9ecec !important;
+        background-color: rgba(255, 255, 255, 0.7) !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.04) !important;
+        padding: 5px !important;
+    }
+
+    /* 3. 美化输入框和下拉菜单的焦点状态 */
+    .stTextInput input:focus, .stSelectbox select:focus {
+        border-color: #ffb085 !important;
+        box-shadow: 0 0 0 1px #ffb085 !important;
+    }
+    
+    /* 4. 微调页面顶部的留白，让标题更好看 */
+    .block-container {
+        padding-top: 3rem !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 st.title("🍲 情绪食谱生成器 Mood-Recipe")
 st.write("欢迎来到你的专属治愈厨房！(🎨 米其林高级摆盘版)")
 
