@@ -125,8 +125,16 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("## 5. 告诉主厨食材")
     
-    camera_input = st.camera_input("📸 智能扫一扫识菜")
-    manual_ingredients = st.text_input("或者手动输入（逗号分隔）", placeholder="例如：西红柿, 鸡蛋, 面条")
+    # 调换顺序：把手动输入框放在最上面，视觉更清爽
+    manual_ingredients = st.text_input("✍️ 手动输入（逗号分隔）", placeholder="例如：西红柿, 鸡蛋, 面条")
+    
+    # --- 🌟 核心升级：增加丝滑的折叠开关 ---
+    use_camera = st.toggle("📸 开启智能摄像头识菜")
+    
+    camera_input = None
+    if use_camera:
+        # 只有开关打开时，才会滑出摄像框
+        camera_input = st.camera_input("对准食材拍一张")
     
     api_key = st.secrets["ZHIPU_API_KEY"]
     
@@ -152,7 +160,7 @@ with st.sidebar:
                 st.info(detected_ingredients_str)
                 final_ingredients_list.extend(detected_ingredients_str.split('，'))
             except Exception as e:
-                st.error("识图失败，请在下方手动输入或重新拍摄。")
+                st.error("识图失败，请在上方手动输入或重新拍摄。")
 
     final_ingredients_list = [item.strip() for item in final_ingredients_list if item.strip()]
     final_ingredients_str = '，'.join(set(final_ingredients_list))
