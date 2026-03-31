@@ -119,8 +119,23 @@ if submit_button:
             res_col_left, res_col_right = st.columns([6, 4])
             
             with res_col_left:
-                # 左边放文字：食谱、冥想、电影推荐
-                st.markdown(response.choices[0].message.content)
+# --- 🌟 摆盘改造 2：给文字加上高级边框容器 ---
+            st.markdown("### 🍽️ 你的专属情绪大餐已上桌")
+            
+            res_col_left, res_col_right = st.columns([6, 4])
+            
+            with res_col_left:
+                # 重点在这里：加了一个带边框的容器！
+                with st.container(border=True):
+                    # 把 AI 严格按照模板生成的文字放进这个容器里
+                    st.markdown(response.choices[0].message.content)
+                
+            with res_col_right:
+                # 给图片加一个视觉提示
+                st.caption("✨ AI 视觉主厨为你生成的概念图")
+                st.image(image_url, caption=f"伴随 {weather.split(' ')[1]} 的天气，请慢用 📸", use_column_width=True)
+                
+                # ... 下面的下载按钮代码保持不变 ...
                 
             with res_col_right:
                 # 右边放视觉：美食图片和下载按钮
