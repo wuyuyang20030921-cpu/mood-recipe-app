@@ -9,7 +9,7 @@ import re
 # ==========================================
 # 🌟 第一部分：终极视觉魔法 & 记忆库初始化
 # ==========================================
-st.set_page_config(page_title="情绪食谱 V4.0 稳定版", page_icon="🍲", layout="wide") 
+st.set_page_config(page_title="情绪食谱 V4.1 智能点歌版", page_icon="🍲", layout="wide") 
 
 if "recipe_history" not in st.session_state:
     st.session_state.recipe_history = []
@@ -85,13 +85,23 @@ st.markdown(
         font-weight: 900;
     }
     div.stMarkdown p { text-align: center; font-size: 1.1rem; color: #666;}
+    
+    /* 美化跳转按钮的外观 */
+    .music-link {
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        margin: 0 5px;
+        font-weight: bold;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("🍲 情绪食谱 V4.0 全感官幻境")
-st.write("听着音乐，调配生活 —— 欢迎来到你的高维治愈厨房 ✨")
+st.title("🍲 情绪食谱 V4.1 全感官幻境")
+st.write("品尝情绪，聆听治愈 —— 你的专属音乐餐厅 ✨")
 
 # ==========================================
 # 🌟 第二部分：侧边栏大升级
@@ -149,24 +159,14 @@ with st.sidebar:
     submit_button = st.button("✨ 顺应天时，开启料理魔法 ✨", use_container_width=True)
     
     st.markdown("---")
-    st.markdown("### 📻 厨房治愈电台")
-    st.caption("🎵 治愈 Lo-Fi 轻音乐，一键秒播")
-    
-    # 无缝嵌入的网易云音乐播放器
-    st.components.v1.html(
-        """
-        <div style="display: flex; justify-content: center;">
-            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="100%" height="86" 
-            src="//music.163.com/outchain/player?type=2&id=1460039233&auto=0&height=66">
-            </iframe>
-        </div>
-        """,
-        height=100
-    )
+    st.markdown("### 📻 备菜白噪音")
+    st.caption("🎵 如果在等饭，可以先放首 Lo-Fi 放松一下")
+    # 侧边栏退居幕后作为背景音
+    st.audio("https://stream.zeno.fm/f3wvbbqmdg8uv", format="audio/mp3")
 
 
 # ==========================================
-# 🌟 第三部分：主界面核心逻辑
+# 🌟 第三部分：主界面核心逻辑 (AI打碟机)
 # ==========================================
 tab_kitchen, tab_history = st.tabs(["👨‍🍳 创作厨房", "📖 我的菜谱手账"])
 
@@ -178,7 +178,7 @@ with tab_kitchen:
             if weather in ["🌧️ 阴雨", "❄️ 寒冷", "🌬️ 大风"]: st.snow()
             else: st.balloons()
             
-            with st.spinner(f"👨‍🍳 【{chef_style.split(' ')[1]}】主厨正在为您构思 {time_limit.split(' ')[1]} 的专属料理..."):
+            with st.spinner(f"👨‍🍳 【{chef_style.split(' ')[1]}】主厨正在为您挑选食材与配乐..."):
                 try:
                     client = OpenAI(api_key=api_key, base_url="https://open.bigmodel.cn/api/paas/v4/")
                     current_hour = (datetime.utcnow() + timedelta(hours=8)).hour
@@ -188,6 +188,7 @@ with tab_kitchen:
                     elif 17 <= current_hour < 21: meal_time = "🌆 晚餐"
                     else: meal_time = "🌙 深夜食堂"
 
+                    # 🌟 核心升级：强迫 AI 按照超链接格式输出 QQ音乐/网易云 的直达搜索链接 🌟
                     prompt = f"""
                     你是一个懂得心理学和营养学的米其林主厨。
                     【情境】心情：{mood} | 天气：{weather} | 时间：{meal_time} | 食材：{final_ingredients_str}
@@ -223,21 +224,23 @@ with tab_kitchen:
                     
                     ---
                     
-                    ### 🧘‍♀️ 灶台冥想与影音搭配
-                    - **🧘 冥想**：*(等待时的1分钟正念)*
-                    - **🎵 推荐歌单**：*(2首)*
+                    ### 🎧 主厨的专属点歌台与冥想
+                    - **🧘 灶台冥想**：*(等待时的1分钟正念)*
+                    - **🎵 专属主厨歌单**：*(推荐2首极度契合当前情绪和菜品的真实存在的流行歌曲。必须严格按照以下格式提供链接！确保将“歌曲名”替换为你推荐的歌：)*
+                      - [歌曲名 - 歌手名] 👉 [🔴 去网易云试听](https://music.163.com/#/search/m/?s=歌曲名) | [🟢 去QQ音乐试听](https://y.qq.com/n/ryqq/search?w=歌曲名)
+                      - [歌曲名 - 歌手名] 👉 [🔴 去网易云试听](https://music.163.com/#/search/m/?s=歌曲名) | [🟢 去QQ音乐试听](https://y.qq.com/n/ryqq/search?w=歌曲名)
                     - **🎬 治愈放映**：*(1部电影)*
                     - **🍵 推荐配饮**：*(1款)*
                     
                     ---
                     
                     ### 📱 朋友圈打卡文案
-                    [用适合当前主厨风格的口吻，写一段极其诱人、带情绪共鸣的社交媒体文案，附带3-4个相关的 Hashtag（如 #情绪食谱 #治愈系做饭 等），方便用户直接复制发送]
+                    [用适合当前主厨风格的口吻，写一段极其诱人、带情绪共鸣的社交媒体文案，附带 Hashtag（如 #情绪食谱 #治愈系做饭 等）]
                     """
                     
                     response = client.chat.completions.create(
                         model="glm-4-flash",
-                        messages=[{"role": "system", "content": f"你是顶级情绪主厨。风格是【{chef_style}】。"},
+                        messages=[{"role": "system", "content": f"你是顶级情绪主厨兼音乐DJ。风格是【{chef_style}】。"},
                                   {"role": "user", "content": prompt}]
                     )
                     recipe_text = response.choices[0].message.content
@@ -253,7 +256,7 @@ with tab_kitchen:
                         my_bar.progress(percent_complete + 1)
                     progress_placeholder.empty() 
                     
-                    st.success("👨‍🍳 大餐已上桌！快看下方为您准备的朋友圈文案 ✨")
+                    st.success("👨‍🍳 大餐已上桌！往下滑，点击歌单直接跳转听歌 ✨")
                     
                     st.session_state.current_recipe = recipe_text
                     st.session_state.current_image = image_url
@@ -270,7 +273,7 @@ with tab_kitchen:
                     st.error(f"出错了，请确认您的智谱账号余额大于 0 元哦：{e}")
     
     if st.session_state.current_recipe and st.session_state.current_image:
-        res_col_left, res_col_right = st.columns([6, 4])
+        res_col_left, res_col_right = st.columns([5.5, 4.5])
         
         with res_col_left:
             with st.container(border=True):
