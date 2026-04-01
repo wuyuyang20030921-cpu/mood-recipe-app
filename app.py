@@ -122,7 +122,6 @@ with st.sidebar:
     api_key = st.secrets["ZHIPU_API_KEY"]
     final_ingredients_list = []
     if manual_ingredients: 
-        # 安全修复：将中文逗号替换为英文逗号，防止分割失败
         final_ingredients_list = manual_ingredients.replace('，', ',').split(',')
 
     if camera_input:
@@ -149,11 +148,11 @@ with st.sidebar:
     st.markdown("---")
     submit_button = st.button("✨ 顺应天时，开启料理魔法 ✨", use_container_width=True)
     
-  st.markdown("---")
+    st.markdown("---")
     st.markdown("### 📻 厨房治愈电台")
     st.caption("🎵 治愈 Lo-Fi 轻音乐，一键秒播")
     
-    # 核心修复：使用网易云音乐的 HTML 嵌入播放器，彻底解决网络和一键播放问题
+    # 无缝嵌入的网易云音乐播放器
     st.components.v1.html(
         """
         <div style="display: flex; justify-content: center;">
@@ -164,6 +163,7 @@ with st.sidebar:
         """,
         height=100
     )
+
 
 # ==========================================
 # 🌟 第三部分：主界面核心逻辑
@@ -242,18 +242,16 @@ with tab_kitchen:
                     )
                     recipe_text = response.choices[0].message.content
                     
-                    # 召唤 CogView-3-Plus 画师
                     image_prompt = f"一道精致的治愈系美食，时间是{meal_time}，天气{weather}。食材：{final_ingredients_str}。口味倾向：{taste_pref}。氛围：{mood}的解药，顶级美食摄影，微距，景深，高清，诱人。"
                     image_response = client.images.generate(model="cogview-3-plus", prompt=image_prompt)
                     image_url = image_response.data[0].url
                     
-                    # 安全修复：使用 st.empty() 制作原生进度条，放弃容易报错的底层 HTML
                     progress_placeholder = st.empty()
                     my_bar = progress_placeholder.progress(0)
                     for percent_complete in range(100):
                         time.sleep(0.01) 
                         my_bar.progress(percent_complete + 1)
-                    progress_placeholder.empty() # 加载完后自动消失
+                    progress_placeholder.empty() 
                     
                     st.success("👨‍🍳 大餐已上桌！快看下方为您准备的朋友圈文案 ✨")
                     
@@ -279,7 +277,6 @@ with tab_kitchen:
                 st.markdown(st.session_state.current_recipe)
                 st.markdown("---")
                 
-                # 交互式清单
                 ingredients_section = re.search(r"#### 🛒 食材确认\n([\s\S]*?)\n---", st.session_state.current_recipe)
                 if ingredients_section:
                     st.markdown("#### 🛒 采购小黑板 (点击划掉)")
@@ -302,10 +299,10 @@ with tab_kitchen:
             st.download_button(label="💾 保存绝美大片到手机相册", data=image_bytes, file_name="recipe.png", mime="image/png", use_container_width=True)
             
     elif not submit_button:
-        st.info("👈 主厨已就位，请在左侧下单，可以在下方点首 Lofi 音乐放松一下~")
+        st.info("👈 主厨已就位，请在左侧下单，可以在下方点首轻音乐放松一下~")
 
 # ==========================================
-# 🌟 第四部分：我的菜谱手账 (安全重构版)
+# 🌟 第四部分：我的菜谱手账
 # ==========================================
 with tab_history:
     st.markdown("### 📖 这里珍藏着你的每一次治愈时刻")
@@ -317,7 +314,6 @@ with tab_history:
                 st.session_state.recipe_history = []
                 st.session_state.current_recipe = None 
                 st.session_state.current_image = None
-                # 安全修复：兼容不同版本的网页刷新指令
                 if hasattr(st, 'rerun'):
                     st.rerun()
                 elif hasattr(st, 'experimental_rerun'):
