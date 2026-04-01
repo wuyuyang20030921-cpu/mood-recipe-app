@@ -1,4 +1,3 @@
-
 import streamlit as st
 from openai import OpenAI
 import urllib.request
@@ -10,7 +9,7 @@ import re
 # ==========================================
 # 🌟 第一部分：终极视觉魔法 & 记忆库初始化
 # ==========================================
-st.set_page_config(page_title="情绪食谱 V4.0 终极版", page_icon="🍲", layout="wide") 
+st.set_page_config(page_title="情绪食谱 V4.0 稳定版", page_icon="🍲", layout="wide") 
 
 if "recipe_history" not in st.session_state:
     st.session_state.recipe_history = []
@@ -95,7 +94,7 @@ st.title("🍲 情绪食谱 V4.0 全感官幻境")
 st.write("听着音乐，调配生活 —— 欢迎来到你的高维治愈厨房 ✨")
 
 # ==========================================
-# 🌟 第二部分：侧边栏大升级 (折叠收纳与电台)
+# 🌟 第二部分：侧边栏大升级
 # ==========================================
 with st.sidebar:
     st.markdown("## 👨‍🍳 今日心境")
@@ -105,7 +104,6 @@ with st.sidebar:
     with col_sb_2:
         weather = st.selectbox("2. 天气？", ["☀️ 晴朗", "🌧️ 阴雨", "☁️ 多云", "❄️ 寒冷", "🌬️ 大风"])
     
-    # --- 新增：高级定制折叠面板，保持侧边栏清爽 ---
     with st.expander("⚙️ 主厨高级定制 (口味/时间/目标)"):
         diet_goal = st.selectbox("饮食目标", ["⚖️ 营养均衡", "🥗 疯狂减脂", "💪 增肌充碳", "🍵 肠胃友好", "😈 极致放纵"])
         chef_style = st.selectbox("主厨风格", ["👵 Gentle Grandma (外婆的唠叨)", "👨‍🍳 Michelin Star (米其林高傲主厨)", "🧘‍♂️ Zen Master (禅意冥想大师)"])
@@ -123,7 +121,9 @@ with st.sidebar:
     
     api_key = st.secrets["ZHIPU_API_KEY"]
     final_ingredients_list = []
-    if manual_ingredients: final_ingredients_list = manual_ingredients.split(',')
+    if manual_ingredients: 
+        # 安全修复：将中文逗号替换为英文逗号，防止分割失败
+        final_ingredients_list = manual_ingredients.replace('，', ',').split(',')
 
     if camera_input:
         with st.spinner("👀 扫描食材中..."):
@@ -142,18 +142,16 @@ with st.sidebar:
                 st.info(detected)
                 final_ingredients_list.extend(detected.split('，'))
             except Exception as e:
-                st.error("识图失败，请检查额度。")
+                st.error("识图失败，请确认额度充足。")
 
     final_ingredients_str = '，'.join(set([item.strip() for item in final_ingredients_list if item.strip()]))
 
     st.markdown("---")
     submit_button = st.button("✨ 顺应天时，开启料理魔法 ✨", use_container_width=True)
     
-    # --- 新增：厨房治愈电台 (引入免费的 Lofi 音乐直播源) ---
     st.markdown("---")
     st.markdown("### 📻 厨房治愈电台")
-    st.caption("点击播放，伴随白噪音和轻音乐开始备菜吧 🎵")
-    # 这是一个极其受欢迎的 Lofi Girl YouTube 音乐视频源
+    st.caption("点击播放，伴随白噪音开始备菜吧 🎵")
     st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
 
 
@@ -180,7 +178,6 @@ with tab_kitchen:
                     elif 17 <= current_hour < 21: meal_time = "🌆 晚餐"
                     else: meal_time = "🌙 深夜食堂"
 
-                    # --- 终极 Prompt：加入时间、口味、朋友圈文案 ---
                     prompt = f"""
                     你是一个懂得心理学和营养学的米其林主厨。
                     【情境】心情：{mood} | 天气：{weather} | 时间：{meal_time} | 食材：{final_ingredients_str}
@@ -225,9 +222,7 @@ with tab_kitchen:
                     ---
                     
                     ### 📱 朋友圈打卡文案
-                    ```text
                     [用适合当前主厨风格的口吻，写一段极其诱人、带情绪共鸣的社交媒体文案，附带3-4个相关的 Hashtag（如 #情绪食谱 #治愈系做饭 等），方便用户直接复制发送]
-                    ```
                     """
                     
                     response = client.chat.completions.create(
@@ -242,12 +237,14 @@ with tab_kitchen:
                     image_response = client.images.generate(model="cogview-3-plus", prompt=image_prompt)
                     image_url = image_response.data[0].url
                     
-                    progress_bar = st.progress(0)
+                    # 安全修复：使用 st.empty() 制作原生进度条，放弃容易报错的底层 HTML
+                    progress_placeholder = st.empty()
+                    my_bar = progress_placeholder.progress(0)
                     for percent_complete in range(100):
                         time.sleep(0.01) 
-                        progress_bar.progress(percent_complete + 1)
+                        my_bar.progress(percent_complete + 1)
+                    progress_placeholder.empty() # 加载完后自动消失
                     
-                    st.components.v1.html("<script>window.parent.postMessage({type: 'streamlit:report_progress', progress: 100}, '*')</script>", height=0)
                     st.success("👨‍🍳 大餐已上桌！快看下方为您准备的朋友圈文案 ✨")
                     
                     st.session_state.current_recipe = recipe_text
@@ -265,7 +262,7 @@ with tab_kitchen:
                     st.error(f"出错了，请确认您的智谱账号余额大于 0 元哦：{e}")
     
     if st.session_state.current_recipe and st.session_state.current_image:
-        res_col_left, res_col_right = st.columns([5.5, 4.5])
+        res_col_left, res_col_right = st.columns([6, 4])
         
         with res_col_left:
             with st.container(border=True):
@@ -298,7 +295,7 @@ with tab_kitchen:
         st.info("👈 主厨已就位，请在左侧下单，可以在下方点首 Lofi 音乐放松一下~")
 
 # ==========================================
-# 🌟 第四部分：我的菜谱手账 (向下兼容)
+# 🌟 第四部分：我的菜谱手账 (安全重构版)
 # ==========================================
 with tab_history:
     st.markdown("### 📖 这里珍藏着你的每一次治愈时刻")
@@ -310,11 +307,23 @@ with tab_history:
                 st.session_state.recipe_history = []
                 st.session_state.current_recipe = None 
                 st.session_state.current_image = None
-                st.rerun() 
+                # 安全修复：兼容不同版本的网页刷新指令
+                if hasattr(st, 'rerun'):
+                    st.rerun()
+                elif hasattr(st, 'experimental_rerun'):
+                    st.experimental_rerun()
 
     if not st.session_state.recipe_history:
         st.write("手账本还是空的，快去厨房留下第一道菜的记忆吧！")
     else:
         for idx, item in enumerate(st.session_state.recipe_history):
             safe_style = item.get('style', '👨‍🍳 默认')
-            style_name = safe_style.
+            style_name = safe_style.split(' ')[1] if ' ' in safe_style else safe_style
+            
+            with st.expander(f"🕰️ {item.get('time', '')} | 心情：{item.get('mood', '')} | 风格：{style_name}", expanded=(idx==0)):
+                hist_col1, hist_col2 = st.columns([6, 4])
+                with hist_col1:
+                    st.markdown(item.get('text', '获取失败'))
+                with hist_col2:
+                    if item.get('image'):
+                        st.image(item['image'], use_column_width=True)
