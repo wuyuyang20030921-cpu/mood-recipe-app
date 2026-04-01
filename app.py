@@ -149,11 +149,21 @@ with st.sidebar:
     st.markdown("---")
     submit_button = st.button("✨ 顺应天时，开启料理魔法 ✨", use_container_width=True)
     
-    st.markdown("---")
+  st.markdown("---")
     st.markdown("### 📻 厨房治愈电台")
-    st.caption("点击播放，伴随白噪音开始备菜吧 🎵")
-    st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
-
+    st.caption("🎵 治愈 Lo-Fi 轻音乐，一键秒播")
+    
+    # 核心修复：使用网易云音乐的 HTML 嵌入播放器，彻底解决网络和一键播放问题
+    st.components.v1.html(
+        """
+        <div style="display: flex; justify-content: center;">
+            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="100%" height="86" 
+            src="//music.163.com/outchain/player?type=2&id=1460039233&auto=0&height=66">
+            </iframe>
+        </div>
+        """,
+        height=100
+    )
 
 # ==========================================
 # 🌟 第三部分：主界面核心逻辑
